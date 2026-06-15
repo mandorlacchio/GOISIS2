@@ -143,8 +143,8 @@ function generaReport(){
 
   let totale = 0;
   let pezzi = 0;
-  let testo = "REPORT GOISIS\\n";
-  testo += "Data: " + data + "\\n\\n";
+  let testo = "REPORT GOISIS\n";
+  testo += "Data: " + data + "\n\n";
 
   document.querySelectorAll(".scheda[data-nome]").forEach(s => {
     const nome = s.dataset.nome;
@@ -152,15 +152,15 @@ function generaReport(){
     const prezzo = Number(s.dataset.prezzo);
 
     if(qta > 0){
-      testo += nome + ": " + qta + " = " + euro(qta * prezzo) + "\\n";
+      testo += nome + ": " + qta + " = " + euro(qta * prezzo) + "\n";
     }
 
     totale += qta * prezzo;
     pezzi += qta;
   });
 
-  testo += "\\nTotale pezzi: " + pezzi;
-  testo += "\\nTotale incasso: " + euro(totale);
+  testo += "\nTotale pezzi: " + pezzi;
+  testo += "\nTotale incasso: " + euro(totale);
 
   const box = document.getElementById("report");
   box.textContent = testo;
