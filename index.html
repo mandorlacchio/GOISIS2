@@ -1,303 +1,187 @@
-<!doctype html>
+html = """<!doctype html>
 <html lang="it">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Contatore Goisis</title>
 <style>
-  * { box-sizing:border-box; }
-  body {
-    margin:0;
-    padding:10px;
-    background:#f4f4f4;
-    color:#000;
-    font-family:-apple-system, BlinkMacSystemFont, Arial, sans-serif;
-  }
-  h1 {
-    font-size:24px;
-    margin:4px 0 8px;
-    text-align:center;
-  }
-  #totale {
-    background:white;
-    border-radius:12px;
-    padding:10px;
-    margin-bottom:8px;
-    text-align:center;
-    font-size:26px;
-    font-weight:900;
-    position:sticky;
-    top:0;
-    z-index:10;
-    box-shadow:0 1px 5px #ccc;
-  }
-  .griglia {
-    display:grid;
-    grid-template-columns:1fr;
-    gap:7px;
-  }
-  .scheda {
-    background:white;
-    border-radius:12px;
-    padding:8px;
-    box-shadow:0 1px 4px #ddd;
-  }
-  .nome {
-    font-size:18px;
-    font-weight:800;
-    margin-bottom:6px;
-    line-height:1.1;
-  }
-  .riga {
-    display:grid;
-    grid-template-columns:54px 1fr 54px;
-    gap:7px;
-    align-items:center;
-  }
-  button {
-    border:0;
-    border-radius:11px;
-    font-size:28px;
-    font-weight:900;
-    height:48px;
-    color:white;
-    touch-action:manipulation;
-  }
-  .meno { background:#d63b35; }
+  :root { font-family: -apple-system, BlinkMacSystemFont, Arial, sans-serif; }
+  body { margin:0; padding:18px; background:#f3f3f3; color:#000; }
+  h1 { font-size:34px; margin:10px 0 16px; }
+  .totale { position:sticky; top:0; z-index:10; background:#fff; border-radius:16px; padding:18px; margin-bottom:16px; text-align:center; font-size:34px; font-weight:800; box-shadow:0 2px 8px #ddd; }
+  .scheda { background:#fff; border-radius:16px; padding:14px; margin:12px 0; box-shadow:0 1px 5px #ddd; }
+  .nome { font-size:24px; font-weight:800; margin-bottom:12px; }
+  .riga { display:grid; grid-template-columns:1fr 90px 1fr; gap:10px; align-items:center; }
+  button { border:0; border-radius:16px; font-size:38px; font-weight:900; padding:18px 0; color:white; }
+  .meno { background:#d83a34; }
   .piu { background:#168a3a; }
-  .numero {
-    font-size:26px;
-    font-weight:900;
-    text-align:center;
-    line-height:48px;
-    background:#f1f1f1;
-    border-radius:10px;
-  }
-  .azioni {
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:8px;
-    margin-top:8px;
-  }
-  .azione {
-    background:#222;
-    font-size:19px;
-    height:48px;
-  }
-  #report {
-    display:none;
-    white-space:pre-wrap;
-    background:white;
-    border-radius:12px;
-    padding:10px;
-    margin-top:8px;
-    font-size:16px;
-    line-height:1.3;
-  }
-  @media (min-width:650px) {
-    .griglia { grid-template-columns:1fr 1fr; }
-  }
+  .numero { font-size:34px; font-weight:900; text-align:center; }
+  .azioni { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:18px; }
+  .azione { background:#222; font-size:20px; padding:16px; }
+  #report { white-space:pre-wrap; background:#fff; border-radius:16px; padding:14px; margin-top:12px; font-size:18px; display:none; }
+  .data-input { width:100%; padding:12px; font-size:22px; border-radius:12px; border:1px solid #ccc; box-sizing:border-box; }
 </style>
 </head>
 <body>
-
 <h1>Contatore Goisis</h1>
-<div id="totale">Totale: € 0,00</div>
 
-<div class="griglia">
+<div class="scheda">
+  <div class="nome">Data report</div>
+  <input class="data-input" type="text" id="dataReport" placeholder="es. 15/06/2026" oninput="salva()">
+</div>
 
-  <div class="scheda" data-nome="Cono 1 gusto" data-prezzo="3" data-qta="0">
-    <div class="nome">Cono 1 gusto</div>
-    <div class="riga">
-      <button type="button" class="meno">−</button>
-      <div class="numero">0</div>
-      <button type="button" class="piu">+</button>
-    </div>
-  </div>
+<div class="totale" id="totale">Totale: € 0,00</div>
 
-  <div class="scheda" data-nome="Cono 2 gusti" data-prezzo="4" data-qta="0">
-    <div class="nome">Cono 2 gusti</div>
-    <div class="riga">
-      <button type="button" class="meno">−</button>
-      <div class="numero">0</div>
-      <button type="button" class="piu">+</button>
-    </div>
-  </div>
+<div class="scheda" data-nome="Cono 1 gusto" data-prezzo="3">
+  <div class="nome">Cono 1 gusto</div>
+  <div class="riga"><button class="meno" onclick="meno(this)">−</button><div class="numero">0</div><button class="piu" onclick="piu(this)">+</button></div>
+</div>
 
-  <div class="scheda" data-nome="Coppetta 1 gusto" data-prezzo="3" data-qta="0">
-    <div class="nome">Coppetta 1 gusto</div>
-    <div class="riga">
-      <button type="button" class="meno">−</button>
-      <div class="numero">0</div>
-      <button type="button" class="piu">+</button>
-    </div>
-  </div>
+<div class="scheda" data-nome="Cono 2 gusti" data-prezzo="4">
+  <div class="nome">Cono 2 gusti</div>
+  <div class="riga"><button class="meno" onclick="meno(this)">−</button><div class="numero">0</div><button class="piu" onclick="piu(this)">+</button></div>
+</div>
 
-  <div class="scheda" data-nome="Coppetta 2 gusti" data-prezzo="4" data-qta="0">
-    <div class="nome">Coppetta 2 gusti</div>
-    <div class="riga">
-      <button type="button" class="meno">−</button>
-      <div class="numero">0</div>
-      <button type="button" class="piu">+</button>
-    </div>
-  </div>
+<div class="scheda" data-nome="Coppetta 1 gusto" data-prezzo="3">
+  <div class="nome">Coppetta 1 gusto</div>
+  <div class="riga"><button class="meno" onclick="meno(this)">−</button><div class="numero">0</div><button class="piu" onclick="piu(this)">+</button></div>
+</div>
 
-  <div class="scheda" data-nome="Fruttino" data-prezzo="2.5" data-qta="0">
-    <div class="nome">Fruttino</div>
-    <div class="riga">
-      <button type="button" class="meno">−</button>
-      <div class="numero">0</div>
-      <button type="button" class="piu">+</button>
-    </div>
-  </div>
+<div class="scheda" data-nome="Coppetta 2 gusti" data-prezzo="4">
+  <div class="nome">Coppetta 2 gusti</div>
+  <div class="riga"><button class="meno" onclick="meno(this)">−</button><div class="numero">0</div><button class="piu" onclick="piu(this)">+</button></div>
+</div>
 
-  <div class="scheda" data-nome="Coppa brownies" data-prezzo="5" data-qta="0">
-    <div class="nome">Coppa brownies</div>
-    <div class="riga">
-      <button type="button" class="meno">−</button>
-      <div class="numero">0</div>
-      <button type="button" class="piu">+</button>
-    </div>
-  </div>
+<div class="scheda" data-nome="Fruttino" data-prezzo="2.5">
+  <div class="nome">Fruttino</div>
+  <div class="riga"><button class="meno" onclick="meno(this)">−</button><div class="numero">0</div><button class="piu" onclick="piu(this)">+</button></div>
+</div>
 
-  <div class="scheda" data-nome="Brioche gelato" data-prezzo="6" data-qta="0">
-    <div class="nome">Brioche gelato</div>
-    <div class="riga">
-      <button type="button" class="meno">−</button>
-      <div class="numero">0</div>
-      <button type="button" class="piu">+</button>
-    </div>
-  </div>
+<div class="scheda" data-nome="Coppa brownies" data-prezzo="5">
+  <div class="nome">Coppa brownies</div>
+  <div class="riga"><button class="meno" onclick="meno(this)">−</button><div class="numero">0</div><button class="piu" onclick="piu(this)">+</button></div>
+</div>
 
-  <div class="scheda" data-nome="Cheesecake" data-prezzo="5" data-qta="0">
-    <div class="nome">Cheesecake</div>
-    <div class="riga">
-      <button type="button" class="meno">−</button>
-      <div class="numero">0</div>
-      <button type="button" class="piu">+</button>
-    </div>
-  </div>
+<div class="scheda" data-nome="Brioche con gelato" data-prezzo="6">
+  <div class="nome">Brioche con gelato</div>
+  <div class="riga"><button class="meno" onclick="meno(this)">−</button><div class="numero">0</div><button class="piu" onclick="piu(this)">+</button></div>
+</div>
 
-  <div class="scheda" data-nome="Tiramisù" data-prezzo="5" data-qta="0">
-    <div class="nome">Tiramisù</div>
-    <div class="riga">
-      <button type="button" class="meno">−</button>
-      <div class="numero">0</div>
-      <button type="button" class="piu">+</button>
-    </div>
-  </div>
+<div class="scheda" data-nome="Cheesecake" data-prezzo="5">
+  <div class="nome">Cheesecake</div>
+  <div class="riga"><button class="meno" onclick="meno(this)">−</button><div class="numero">0</div><button class="piu" onclick="piu(this)">+</button></div>
+</div>
 
+<div class="scheda" data-nome="Tiramisù" data-prezzo="5">
+  <div class="nome">Tiramisù</div>
+  <div class="riga"><button class="meno" onclick="meno(this)">−</button><div class="numero">0</div><button class="piu" onclick="piu(this)">+</button></div>
 </div>
 
 <div class="azioni">
-  <button type="button" class="azione" id="btnReport">Report</button>
-  <button type="button" class="azione" id="btnAzzera">Azzera</button>
+  <button class="azione" onclick="generaReport()">Report</button>
+  <button class="azione" onclick="azzera()">Azzera</button>
 </div>
 
 <div id="report"></div>
 
 <script>
-(function(){
-  function euro(n) {
-    return "€ " + Number(n).toFixed(2).replace(".", ",");
-  }
+function euro(n){ return "€ " + n.toFixed(2).replace(".", ","); }
 
-  function schede() {
-    return Array.from(document.querySelectorAll(".scheda"));
-  }
-
-  function aggiorna() {
-    let totale = 0;
-    const salvataggio = [];
-
-    schede().forEach(function(s) {
-      const qta = Number(s.dataset.qta || 0);
-      const prezzo = Number(s.dataset.prezzo || 0);
-      s.querySelector(".numero").textContent = qta;
-      totale += qta * prezzo;
-      salvataggio.push({ nome:s.dataset.nome, qta:qta });
+function salva(){
+  const dati = [];
+  document.querySelectorAll(".scheda[data-nome]").forEach(s => {
+    dati.push({
+      nome: s.dataset.nome,
+      qta: Number(s.querySelector(".numero").textContent)
     });
+  });
+  localStorage.setItem("goisis_contatore", JSON.stringify(dati));
+  localStorage.setItem("goisis_data_report", document.getElementById("dataReport").value);
+}
 
-    document.getElementById("totale").textContent = "Totale: " + euro(totale);
-    try {
-      localStorage.setItem("goisis_contatore_v3", JSON.stringify(salvataggio));
-    } catch(e) {}
+function carica(){
+  const raw = localStorage.getItem("goisis_contatore");
+  if(raw){
+    const dati = JSON.parse(raw);
+    document.querySelectorAll(".scheda[data-nome]").forEach(s => {
+      const trovato = dati.find(x => x.nome === s.dataset.nome);
+      if(trovato) s.querySelector(".numero").textContent = trovato.qta;
+    });
   }
 
-  function carica() {
-    try {
-      const raw = localStorage.getItem("goisis_contatore_v3");
-      if (!raw) return;
-      const salvati = JSON.parse(raw);
-      schede().forEach(function(s) {
-        const trovato = salvati.find(function(x){ return x.nome === s.dataset.nome; });
-        if (trovato) s.dataset.qta = trovato.qta;
-      });
-    } catch(e) {}
+  const dataSalvata = localStorage.getItem("goisis_data_report");
+  if(dataSalvata){
+    document.getElementById("dataReport").value = dataSalvata;
   }
+}
 
-  document.addEventListener("click", function(e) {
-    const btn = e.target.closest("button");
-    if (!btn) return;
+function aggiornaTotale(){
+  let totale = 0;
+  document.querySelectorAll(".scheda[data-nome]").forEach(s => {
+    const qta = Number(s.querySelector(".numero").textContent);
+    const prezzo = Number(s.dataset.prezzo);
+    totale += qta * prezzo;
+  });
+  document.getElementById("totale").textContent = "Totale: " + euro(totale);
+  salva();
+}
 
-    const scheda = btn.closest(".scheda");
+function piu(btn){
+  const n = btn.parentElement.querySelector(".numero");
+  n.textContent = Number(n.textContent) + 1;
+  aggiornaTotale();
+}
 
-    if (btn.classList.contains("piu") && scheda) {
-      scheda.dataset.qta = Number(scheda.dataset.qta || 0) + 1;
-      aggiorna();
-      return;
+function meno(btn){
+  const n = btn.parentElement.querySelector(".numero");
+  n.textContent = Math.max(0, Number(n.textContent) - 1);
+  aggiornaTotale();
+}
+
+function generaReport(){
+  const data = document.getElementById("dataReport").value.trim() || "DATA NON INSERITA";
+
+  let totale = 0;
+  let pezzi = 0;
+  let testo = "REPORT GOISIS\\n";
+  testo += "Data: " + data + "\\n\\n";
+
+  document.querySelectorAll(".scheda[data-nome]").forEach(s => {
+    const nome = s.dataset.nome;
+    const qta = Number(s.querySelector(".numero").textContent);
+    const prezzo = Number(s.dataset.prezzo);
+
+    if(qta > 0){
+      testo += nome + ": " + qta + " = " + euro(qta * prezzo) + "\\n";
     }
 
-    if (btn.classList.contains("meno") && scheda) {
-      scheda.dataset.qta = Math.max(0, Number(scheda.dataset.qta || 0) - 1);
-      aggiorna();
-      return;
-    }
-
-    if (btn.id === "btnReport") {
-      generaReport();
-      return;
-    }
-
-    if (btn.id === "btnAzzera") {
-      if (confirm("Azzero tutta la serata?")) {
-        schede().forEach(function(s){ s.dataset.qta = 0; });
-        document.getElementById("report").style.display = "none";
-        aggiorna();
-      }
-    }
+    totale += qta * prezzo;
+    pezzi += qta;
   });
 
-  function generaReport() {
-    let totale = 0;
-    let pezzi = 0;
-    let testo = "REPORT GOISIS\n\n";
+  testo += "\\nTotale pezzi: " + pezzi;
+  testo += "\\nTotale incasso: " + euro(totale);
 
-    schede().forEach(function(s) {
-      const nome = s.dataset.nome;
-      const qta = Number(s.dataset.qta || 0);
-      const prezzo = Number(s.dataset.prezzo || 0);
+  const box = document.getElementById("report");
+  box.textContent = testo;
+  box.style.display = "block";
+}
 
-      if (qta > 0) {
-        testo += nome + ": " + qta + " = " + euro(qta * prezzo) + "\n";
-      }
-
-      totale += qta * prezzo;
-      pezzi += qta;
-    });
-
-    testo += "\nTotale pezzi: " + pezzi;
-    testo += "\nTotale incasso: " + euro(totale);
-
-    const box = document.getElementById("report");
-    box.textContent = testo;
-    box.style.display = "block";
+function azzera(){
+  if(confirm("Azzero tutta la serata?")){
+    document.querySelectorAll(".numero").forEach(n => n.textContent = "0");
+    document.getElementById("report").style.display = "none";
+    aggiornaTotale();
   }
+}
 
-  carica();
-  aggiorna();
-})();
+carica();
+aggiornaTotale();
 </script>
-
 </body>
 </html>
+"""
+
+path = Path("/mnt/data/Contatore_Goisis_v2.html")
+path.write_text(html, encoding="utf-8")
+print(path)
